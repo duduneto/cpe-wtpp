@@ -13,17 +13,29 @@ venomCreate('cpe-wtpp-bot')
 const {
   contacts: phoneNumbers,
   message,
+  bulk_phone_numbers
 } = CPE_Data_Input;
 
 const sendMessageToList = async (client) => {
-  const promiseNumMessagesSent = phoneNumbers.map((phoneNum: string) => {
-  const sanitizedPhoneNum = phoneNum.replace(/[^0-9]/g, '');
-  console.log("sanitizedPhoneNum => ", sanitizedPhoneNum)
-  client.sendText(sanitizedPhoneNum+'@c.us', message)
+  const numbersAsList = [];
+  bulk_phone_numbers.split(',').forEach((phoneNum: string) => {
+    const sanitizedPhoneNum = phoneNum.replace(/[^0-9]/g, '');
+    if(sanitizedPhoneNum) {
+      numbersAsList.push(sanitizedPhoneNum)
+    }
+  })
+
+  const promiseNumMessagesSent = numbersAsList.map((phoneNum: string) => {
+  client.sendText(phoneNum+'@c.us', message)
   });
+  const erroToSend = [];
+
   try {
     await Promise.all(promiseNumMessagesSent)
   } catch (error) {
+    if(error?.to) {
+      erroToSend.push(error.to)
+    }
     console.error(error)
   }
 }
