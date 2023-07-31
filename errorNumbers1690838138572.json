@@ -1,0 +1,16 @@
+{
+  "phoneNumbersNotSent": [
+    {
+      "phoneNumber": "5585992200490 @c.us",
+      "reason": "incorrect parameters! Use as an example: 000000000000@c.us"
+    },
+    {
+      "phoneNumber": "5585999176792 @c.us",
+      "reason": "incorrect parameters! Use as an example: 000000000000@c.us"
+    },
+    {
+      "phoneNumber": "5585997495968 @c.us",
+      "reason": "incorrect parameters! Use as an example: 000000000000@c.us"
+    }
+  ]
+}

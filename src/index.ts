@@ -21,29 +21,43 @@ const sendMessageToList = async (client) => {
   const numbersAsList = [];
   bulk_phone_numbers.split(',').forEach((phoneNum: string) => {
     const sanitizedPhoneNum = phoneNum.replace(/[^0-9]/g, '');
-    if(sanitizedPhoneNum) {
+    if (sanitizedPhoneNum) {
       numbersAsList.push(sanitizedPhoneNum)
     }
   })
 
-  const promiseNumMessagesSent = numbersAsList.map((phoneNum: string) => {
-  client.sendText(phoneNum+'@c.us', message)
+  const phoneNumbers = numbersAsList.map((phoneNum: string) => {
+    return phoneNum+'@c.us'
   });
   const erroToSend = [];
 
-  try {
-    await Promise.all(promiseNumMessagesSent)
-  } catch (error) {
-    if(error?.to) {
-      erroToSend.push(error.to)
+  const reset = '\x1b[0m';
+  const yellow = '\x1b[33m';
+  const green = '\x1b[32m';
+
+  console.log(yellow, 'Sending Messages...', reset)
+  
+  for (let i = 0; i < phoneNumbers.length; i++) {
+    try {
+      await client.sendText(phoneNumbers[i], message);
+    } catch (error) {
+      
+      if (error?.to) {
+        erroToSend.push({
+          phoneNumber: error.to,
+          reason: error.text
+        })
+      }
     }
-    console.error(error)
   }
+
+  console.log(green, 'All Numbers sent!', reset)
+  console.log('erroToSend => ', erroToSend)
   saveNotSentNumbers(erroToSend)
 }
 
 function saveNotSentNumbers(numbersAsList) {
-  fs.writeFile('../errorNumbers.json', JSON.stringify({
+  fs.writeFile('errorNumbers' + new Date().getTime() + '.json', JSON.stringify({
     phoneNumbersNotSent: numbersAsList
   }, null, 2), (err) => {
     if (err) {
@@ -52,7 +66,7 @@ function saveNotSentNumbers(numbersAsList) {
       console.log('JSON file has been created!');
     }
   });
-  
+
 }
 
 function start(client) {
