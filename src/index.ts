@@ -2,6 +2,7 @@ import Senders from './handlers/Senders';
 import MessagesHandler from './handlers/Messages'
 import { Message, create as venomCreate } from 'venom-bot';
 import CPE_Data_Input from '../inputs/cpe.json';
+import fs from 'fs';
 
 venomCreate('cpe-wtpp-bot')
   .then((client) => start(client))
@@ -38,6 +39,20 @@ const sendMessageToList = async (client) => {
     }
     console.error(error)
   }
+  saveNotSentNumbers(erroToSend)
+}
+
+function saveNotSentNumbers(numbersAsList) {
+  fs.writeFile('../errorNumbers.json', JSON.stringify({
+    phoneNumbersNotSent: numbersAsList
+  }, null, 2), (err) => {
+    if (err) {
+      console.error('Error writing JSON file:', err);
+    } else {
+      console.log('JSON file has been created!');
+    }
+  });
+  
 }
 
 function start(client) {
