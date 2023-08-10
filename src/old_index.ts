@@ -39,7 +39,11 @@ const sendMessageToList = async (client) => {
   
   for (let i = 0; i < phoneNumbers.length; i++) {
     try {
-      await client.sendText(phoneNumbers[i], message);
+      console.log(phoneNumbers[i], message);
+      client.sendMessageOptions(
+        phoneNumbers[i],
+        'This is a reply!'
+      )
     } catch (error) {
       
       if (error?.to) {
@@ -57,7 +61,7 @@ const sendMessageToList = async (client) => {
 }
 
 function saveNotSentNumbers(numbersAsList) {
-  fs.writeFile('errorNumbers' + new Date().getTime() + '.json', JSON.stringify({
+  fs.writeFile('errors/errorNumbers.' + new Date().getTime() + '.json', JSON.stringify({
     phoneNumbersNotSent: numbersAsList
   }, null, 2), (err) => {
     if (err) {
@@ -71,7 +75,7 @@ function saveNotSentNumbers(numbersAsList) {
 
 function start(client) {
   client.onMessage(async (message: Message) => {
-    // console.log("Message => ", message)
+    console.log("Message => ", message)
   });
   sendMessageToList(client)
 }

@@ -2,3 +2,5 @@ node_modules
 dist
 tokens
 inputs/cpe.json
+errors/errorNumbers.*.json
+.wwebjs_cache
