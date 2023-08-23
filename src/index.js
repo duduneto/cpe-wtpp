@@ -73,7 +73,11 @@ function saveNotSentNumbers(numbersAsList) {
 
 }
 
-const client = new Client();
+const client = new Client({
+    puppeteer: {
+        headless: true
+    }
+});
 
 client.on('qr', (qr) => {
     // Generate and scan this code with your phone
