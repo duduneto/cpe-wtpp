@@ -1,19 +1,31 @@
 const qrcode = require('qrcode-terminal');
-const { Client, LocalAuth } = require('whatsapp-web.js');
+const { Client } = require('whatsapp-web.js');
 const fs = require("fs");
+const util = require('util');
 
-const CPE_Data_Input = require('../inputs/cpe.json');
+const readFileAsync = util.promisify(fs.readFile);
 
+const numbersFilePath = 'inputs/numbers.txt';
+let wtppNumbersRaw;
+const scheduledMessageFilePath = 'inputs/scheduled_message.txt';
+let scheduledMessageRaw;
+(async () => {
+  try {
+    const fileConsultingResult = await Promise.all([
+        readFileAsync(numbersFilePath, 'utf8'),
+        readFileAsync(scheduledMessageFilePath, 'utf8')
+    ])
+    wtppNumbersRaw = fileConsultingResult[0];
+    scheduledMessageRaw = fileConsultingResult[1];
+  } catch (err) {
+    console.error('Error reading the file:', err);
+  }
+})();
 
-const {
-    contacts: phoneNumbers,
-    message,
-    bulk_phone_numbers
-  } = CPE_Data_Input;
 
 const sendMessageToList = async (client) => {
     const numbersAsList = [];
-    bulk_phone_numbers.split(',').forEach((phoneNum) => {
+    wtppNumbersRaw.split(',').forEach((phoneNum) => {
         const sanitizedPhoneNum = phoneNum.replace(/[^0-9]/g, '');
         if (sanitizedPhoneNum) {
           numbersAsList.push(sanitizedPhoneNum)
@@ -31,13 +43,14 @@ const sendMessageToList = async (client) => {
     const green = '\x1b[32m';
 
     console.log(yellow, 'Sending Messages...', reset)
-
+    
+    console.log('Message: ', scheduledMessageRaw);
     for (let i = 0; i < phoneNumbers.length; i++) {
         try {
-            console.log(phoneNumbers[i], message);
-            await client.sendMessage(phoneNumbers[i],message);
+            await client.sendMessage(phoneNumbers[i],scheduledMessageRaw);
+            console.log(phoneNumbers[i], ' sent \u2713')
         } catch (error) {
-
+            console.log(phoneNumbers[i], ' NOT sent \u274c')
             if (error?.to) {
                 erroToSend.push({
                     phoneNumber: error.to,
@@ -68,11 +81,7 @@ function saveNotSentNumbers(numbersAsList) {
 
 }
 
-const client = new Client({
-    puppeteer: {
-        headless: true
-    }
-});
+const client = new Client();
 
 client.on('qr', (qr) => {
     // Generate and scan this code with your phone
