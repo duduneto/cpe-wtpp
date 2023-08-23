@@ -4,3 +4,5 @@ tokens
 inputs/cpe.json
 errors/errorNumbers.*.json
 .wwebjs_cache
+inputs/settings.json
+.DS_Store
