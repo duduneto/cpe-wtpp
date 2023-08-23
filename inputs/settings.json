@@ -1,8 +1,9 @@
 {
     "monitoring_groups": {
-        "delay_mg": 120000,
+        "delay_msg": 120000,
         "names": [
-            "Test Group"
+            "Test Group",
+            "Outro Grupo"
         ]
     }
     

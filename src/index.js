@@ -118,7 +118,7 @@ client.on('group_leave', async (notification) => {
             setTimeout(async () => {
                 await client.sendMessage(numberLeftId,userLeftGroupMessageRaw);
                 console.log('Scheduled Messaged Sent to: ', numberLeftId,  '  \u2713')
-            }, 120000)
+            }, CPE_Data_Input.monitoring_groups.delay_msg)
         }
     }
 });
