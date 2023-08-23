@@ -8,7 +8,7 @@
     "reset": "yarn cache clean && rm -rf node_modules && rm -rf yarn.lock&& yarn install",
     "clean:tokens": "rm -rf tokens",
     "dev": "node src/index.js",
-    "dev:ts": "npm run clean:tokens && ts-node-dev --respawn --transpile-only --ignore-watch node_modules --no-notify src/old_index.ts"
+    "dev:ts": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules --no-notify src/old_index.ts"
   },
   "keywords": [],
   "author": "",
