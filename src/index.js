@@ -14,17 +14,12 @@ const {
 const sendMessageToList = async (client) => {
     const numbersAsList = [];
     bulk_phone_numbers.split(',').forEach((phoneNum) => {
-        const splitNum = phoneNum.split(" ");
-        if(splitNum[splitNum.length-1].length === 10 && splitNum[splitNum.length-1][0] == 9) {
-            splitNum[splitNum.length-1] = splitNum[splitNum.length-1].substring(1)
-        }
-        const joinedNum = splitNum.join("")
-        
-        const sanitizedPhoneNum = joinedNum.replace(/[^0-9]/g, '');
+        const sanitizedPhoneNum = phoneNum.replace(/[^0-9]/g, '');
         if (sanitizedPhoneNum) {
-            numbersAsList.push(sanitizedPhoneNum)
+          numbersAsList.push(sanitizedPhoneNum)
         }
-    })
+      })
+    
 
     const phoneNumbers = numbersAsList.map((phoneNum) => {
         return phoneNum.trim() + '@c.us'

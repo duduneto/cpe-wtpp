@@ -20,19 +20,19 @@ const {
 const sendMessageToList = async (client) => {
   const numbersAsList = [];
   bulk_phone_numbers.split(',').forEach((phoneNum) => {
-    const splitNum = phoneNum.split(" ");
-    if (splitNum[splitNum.length - 1].length === 10 && splitNum[splitNum.length - 1][0] == 9) {
-      splitNum[splitNum.length - 1] = splitNum[splitNum.length - 1].substring(1)
-    }
-    const joinedNum = splitNum.join("")
-
-    const sanitizedPhoneNum = joinedNum.replace(/[^0-9]/g, '');
-    if (sanitizedPhoneNum) {
-      numbersAsList.push(sanitizedPhoneNum)
-    }
-  })
+        const splitNum = phoneNum.split(" ");
+        if(splitNum[splitNum.length-1].length === 10 && splitNum[splitNum.length-1][0] == 9) {
+            splitNum[splitNum.length-1] = splitNum[splitNum.length-1].substring(1)
+        }
+        const joinedNum = splitNum.join("")
+        
+        const sanitizedPhoneNum = joinedNum.replace(/[^0-9]/g, '');
+        if (sanitizedPhoneNum) {
+            numbersAsList.push(sanitizedPhoneNum)
+        }
+    })
   const phoneNumbers = numbersAsList.map((phoneNum: string) => {
-    return phoneNum + '@c.us'
+    return phoneNum+'@c.us'
   });
   const erroToSend = [];
 
@@ -41,7 +41,7 @@ const sendMessageToList = async (client) => {
   const green = '\x1b[32m';
 
   console.log(yellow, 'Sending Messages...', reset)
-
+  
   for (let i = 0; i < phoneNumbers.length; i++) {
     try {
       console.log(phoneNumbers[i], message);
@@ -50,7 +50,7 @@ const sendMessageToList = async (client) => {
         'This is a reply!'
       )
     } catch (error) {
-
+      
       if (error?.to) {
         erroToSend.push({
           phoneNumber: error.to,
