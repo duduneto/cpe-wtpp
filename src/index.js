@@ -111,7 +111,7 @@ client.on('group_leave', async (notification) => {
         const numberLeftId = notification.author;
         const chat = await notification.getChat();
         const groupName = chat?.name;
-        if(CPE_Data_Input.monitoring_groups.includes(groupName)) {
+        if(CPE_Data_Input.monitoring_groups.names.includes(groupName)) {
 
             console.log('User Left: ', numberLeftId, ' --- Scheduling Message ',  '\u23f2')
             
