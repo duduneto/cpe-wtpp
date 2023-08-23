@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "reset": "yarn cache clean && rm -rf node_modules && rm -rf yarn.lock&& yarn install",
     "clean:tokens": "rm -rf tokens",
-    "dev": "node src/index.js",
+    "dev:msg": "node src/index.js --send-messages",
+    "dev:gp": "node src/index.js --monitor-group",
     "dev:ts": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules --no-notify src/old_index.ts"
   },
   "keywords": [],

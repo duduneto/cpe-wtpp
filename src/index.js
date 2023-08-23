@@ -5,18 +5,24 @@ const util = require('util');
 
 const readFileAsync = util.promisify(fs.readFile);
 
+const RUN_TIME_MODE = process.argv[2];
+
 const numbersFilePath = 'inputs/numbers.txt';
-let wtppNumbersRaw;
 const scheduledMessageFilePath = 'inputs/scheduled_message.txt';
+const userLeftGroupMessageFilePath = 'inputs/left_group_message.txt';
+let wtppNumbersRaw;
 let scheduledMessageRaw;
+let userLeftGroupMessageRaw;
 (async () => {
   try {
     const fileConsultingResult = await Promise.all([
         readFileAsync(numbersFilePath, 'utf8'),
-        readFileAsync(scheduledMessageFilePath, 'utf8')
+        readFileAsync(scheduledMessageFilePath, 'utf8'),
+        readFileAsync(userLeftGroupMessageFilePath, 'utf8'),
     ])
     wtppNumbersRaw = fileConsultingResult[0];
     scheduledMessageRaw = fileConsultingResult[1];
+    userLeftGroupMessageRaw = fileConsultingResult[2];
   } catch (err) {
     console.error('Error reading the file:', err);
   }
@@ -47,7 +53,7 @@ const sendMessageToList = async (client) => {
     console.log('Message: ', scheduledMessageRaw);
     for (let i = 0; i < phoneNumbers.length; i++) {
         try {
-            await client.sendMessage(phoneNumbers[i],scheduledMessageRaw);
+            // await client.sendMessage(phoneNumbers[i],scheduledMessageRaw);
             console.log(phoneNumbers[i], ' sent \u2713')
         } catch (error) {
             console.log(phoneNumbers[i], ' NOT sent \u274c')
@@ -90,11 +96,25 @@ client.on('qr', (qr) => {
 
 client.on('ready', async () => {
     console.log('Client is ready!');
-    sendMessageToList(client)
+    if(RUN_TIME_MODE === '--send-messages') {
+        sendMessageToList(client)
+    }
 });
 
 client.on('message', async (msg) => {
    
+});
+client.on('group_leave', async (notification) => {
+    if(RUN_TIME_MODE === '--monitor-group') {
+        // User has left or been kicked from the group.
+        const numberLeftId = notification.author;
+        console.log('User Left: ', numberLeftId, ' --- Scheduling Message ',  '\u1F551')
+        
+        setTimeout(async () => {
+            await client.sendMessage(numberLeftId,userLeftGroupMessageRaw);
+            console.log('Scheduled Messaged Sent to: ', numberLeftId,  '  \u2713')
+        }, 120000)
+    }
 });
 
 client.initialize();
