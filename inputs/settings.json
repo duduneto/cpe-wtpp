@@ -1,0 +1,9 @@
+{
+    "monitoring_groups": {
+        "delay_mg": 120000,
+        "names": [
+            "Test Group"
+        ]
+    }
+    
+}

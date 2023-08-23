@@ -2,6 +2,7 @@ const qrcode = require('qrcode-terminal');
 const { Client } = require('whatsapp-web.js');
 const fs = require("fs");
 const util = require('util');
+const CPE_Data_Input = require('../inputs/settings.json');
 
 const readFileAsync = util.promisify(fs.readFile);
 
@@ -108,12 +109,17 @@ client.on('group_leave', async (notification) => {
     if(RUN_TIME_MODE === '--monitor-group') {
         // User has left or been kicked from the group.
         const numberLeftId = notification.author;
-        console.log('User Left: ', numberLeftId, ' --- Scheduling Message ',  '\u1F551')
-        
-        setTimeout(async () => {
-            await client.sendMessage(numberLeftId,userLeftGroupMessageRaw);
-            console.log('Scheduled Messaged Sent to: ', numberLeftId,  '  \u2713')
-        }, 120000)
+        const chat = await notification.getChat();
+        const groupName = chat?.name;
+        if(CPE_Data_Input.monitoring_groups.includes(groupName)) {
+
+            console.log('User Left: ', numberLeftId, ' --- Scheduling Message ',  '\u23f2')
+            
+            setTimeout(async () => {
+                await client.sendMessage(numberLeftId,userLeftGroupMessageRaw);
+                console.log('Scheduled Messaged Sent to: ', numberLeftId,  '  \u2713')
+            }, 120000)
+        }
     }
 });
 
