@@ -2,6 +2,7 @@ const qrcode = require('qrcode-terminal');
 const { Client } = require('whatsapp-web.js');
 const fs = require("fs");
 const util = require('util');
+const path = require('path');
 const CPE_Data_Input = require('../inputs/settings.json');
 
 const readFileAsync = util.promisify(fs.readFile);
@@ -15,18 +16,18 @@ let wtppNumbersRaw;
 let scheduledMessageRaw;
 let userLeftGroupMessageRaw;
 (async () => {
-  try {
-    const fileConsultingResult = await Promise.all([
-        readFileAsync(numbersFilePath, 'utf8'),
-        readFileAsync(scheduledMessageFilePath, 'utf8'),
-        readFileAsync(userLeftGroupMessageFilePath, 'utf8'),
-    ])
-    wtppNumbersRaw = fileConsultingResult[0];
-    scheduledMessageRaw = fileConsultingResult[1];
-    userLeftGroupMessageRaw = fileConsultingResult[2];
-  } catch (err) {
-    console.error('Error reading the file:', err);
-  }
+    try {
+        const fileConsultingResult = await Promise.all([
+            readFileAsync(numbersFilePath, 'utf8'),
+            readFileAsync(scheduledMessageFilePath, 'utf8'),
+            readFileAsync(userLeftGroupMessageFilePath, 'utf8'),
+        ])
+        wtppNumbersRaw = fileConsultingResult[0];
+        scheduledMessageRaw = fileConsultingResult[1];
+        userLeftGroupMessageRaw = fileConsultingResult[2];
+    } catch (err) {
+        console.error('Error reading the file:', err);
+    }
 })();
 
 
@@ -35,10 +36,10 @@ const sendMessageToList = async (client) => {
     wtppNumbersRaw.split(',').forEach((phoneNum) => {
         const sanitizedPhoneNum = phoneNum.replace(/[^0-9]/g, '');
         if (sanitizedPhoneNum) {
-          numbersAsList.push(sanitizedPhoneNum)
+            numbersAsList.push(sanitizedPhoneNum)
         }
-      })
-    
+    })
+
 
     const phoneNumbers = numbersAsList.map((phoneNum) => {
         return phoneNum.trim() + '@c.us'
@@ -50,7 +51,7 @@ const sendMessageToList = async (client) => {
     const green = '\x1b[32m';
 
     console.log(yellow, 'Sending Messages...', reset)
-    
+
     console.log('Message: ', scheduledMessageRaw);
     for (let i = 0; i < phoneNumbers.length; i++) {
         try {
@@ -74,7 +75,7 @@ const sendMessageToList = async (client) => {
 
 
 function saveNotSentNumbers(numbersAsList) {
-    if(numbersAsList.length) {
+    if (numbersAsList.length) {
         fs.writeFile('errors/errorNumbers.' + new Date().getTime() + '.json', JSON.stringify({
             phoneNumbersNotSent: numbersAsList
         }, null, 2), (err) => {
@@ -97,28 +98,55 @@ client.on('qr', (qr) => {
 
 client.on('ready', async () => {
     console.log('Client is ready!');
-    if(RUN_TIME_MODE === '--send-messages') {
+    if (RUN_TIME_MODE === '--send-messages') {
         sendMessageToList(client)
     }
 });
 
 client.on('message', async (msg) => {
-   
+
 });
 client.on('group_leave', async (notification) => {
-    if(RUN_TIME_MODE === '--monitor-group') {
+    if (RUN_TIME_MODE === '--monitor-group') {
+
+        const {
+            monitoring_groups,
+        } = CPE_Data_Input;
+
+        // Get the current local time
+        const currentLocalTime = new Date();
+        const currentHour = currentLocalTime.getHours();
+
         // User has left or been kicked from the group.
         const numberLeftId = notification.author;
         const chat = await notification.getChat();
         const groupName = chat?.name;
-        if(CPE_Data_Input.monitoring_groups.names.includes(groupName)) {
+        if (monitoring_groups.names.includes(groupName)) {
+            console.log('User Left: ', numberLeftId, ' Out of Time. Saving it ', '\uf634')
 
-            console.log('User Left: ', numberLeftId, ' --- Scheduling Message ',  '\u23f2')
-            
-            setTimeout(async () => {
-                await client.sendMessage(numberLeftId,userLeftGroupMessageRaw);
-                console.log('Scheduled Messaged Sent to: ', numberLeftId,  '  \u2713')
-            }, CPE_Data_Input.monitoring_groups.delay_msg)
+            if (currentHour >= monitoring_groups.snooze_range.hour[0] || currentHour < monitoring_groups.snooze_range.hour[1]) {
+
+                // Append the number to the file
+                const filePath = path.join('outputs/out_time_left_group_event.txt');
+                const numberToAppend = ','+numberLeftId; // Include a newline after the number
+
+                fs.appendFile(filePath, numberToAppend, (err) => {
+                    if (err) {
+                        console.error('Error appending to file:', err);
+                    } else {
+                        console.log('Number appended to file:', numberLeftId);
+                    }
+                });
+
+            } else {
+                console.log('User Left: ', numberLeftId, ' --- Scheduling Message ', '\u23f2')
+
+                setTimeout(async () => {
+                    await client.sendMessage(numberLeftId, userLeftGroupMessageRaw);
+                    console.log('Scheduled Messaged Sent to: ', numberLeftId, '  \u2713')
+                }, monitoring_groups.delay_msg)
+            }
+
         }
     }
 });

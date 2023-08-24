@@ -4,7 +4,10 @@
         "names": [
             "Test Group",
             "Outro Grupo"
-        ]
+        ],
+        "snooze_range": {
+            "hour": [21, 6]
+        }
     }
     
 }
