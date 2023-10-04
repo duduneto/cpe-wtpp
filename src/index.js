@@ -55,7 +55,7 @@ const sendMessageToList = async (client) => {
     console.log('Message: ', scheduledMessageRaw);
     for (let i = 0; i < phoneNumbers.length; i++) {
         try {
-            // await client.sendMessage(phoneNumbers[i],scheduledMessageRaw);
+            await client.sendMessage(phoneNumbers[i],scheduledMessageRaw);
             console.log(phoneNumbers[i], ' sent \u2713')
         } catch (error) {
             console.log(phoneNumbers[i], ' NOT sent \u274c')

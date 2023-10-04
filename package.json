@@ -9,6 +9,7 @@
     "clean:tokens": "rm -rf tokens",
     "dev:msg": "node src/index.js --send-messages",
     "dev:gp": "node src/index.js --monitor-group",
+    "dev:leave-gp": "node src/leave_gp.js",
     "dev:ts": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules --no-notify src/old_index.ts"
   },
   "keywords": [],
