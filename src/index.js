@@ -32,6 +32,12 @@ let userLeftGroupMessageRaw;
 
 
 const sendMessageToList = async (client) => {
+    const {
+        send_bulk_messages: {
+            delay_every_message
+        },
+    } = CPE_Data_Input;
+
     const numbersAsList = [];
     wtppNumbersRaw.split(',').forEach((phoneNum) => {
         const sanitizedPhoneNum = phoneNum.replace(/[^0-9]/g, '');
@@ -53,20 +59,32 @@ const sendMessageToList = async (client) => {
     console.log(yellow, 'Sending Messages...', reset)
 
     console.log('Message: ', scheduledMessageRaw);
-    for (let i = 0; i < phoneNumbers.length; i++) {
-        try {
-            await client.sendMessage(phoneNumbers[i],scheduledMessageRaw);
-            console.log(phoneNumbers[i], ' sent \u2713')
-        } catch (error) {
-            console.log(phoneNumbers[i], ' NOT sent \u274c')
-            if (error?.to) {
-                erroToSend.push({
-                    phoneNumber: error.to,
-                    reason: error.text
-                })
+
+    const sendMessagesWithDelay = async (listNumbers) => {
+        if(listNumbers.length) {
+            const firstNumberInList = listNumbers.splice(0,1)
+            const phoneNumber = firstNumberInList[0];
+            try {
+                await client.sendMessage(phoneNumber,scheduledMessageRaw);
+                console.log(phoneNumber, ' sent \u2713')
+            } catch (error) {
+                console.log(phoneNumber, ' - WILL NOT sent \u274c')
+                if (error?.to) {
+                    erroToSend.push({
+                        phoneNumber: error.to,
+                        reason: error.text
+                    })
+                }
             }
+            setTimeout(() => {
+                sendMessagesWithDelay(listNumbers)
+            },
+                delay_every_message || 0
+            )
         }
     }
+
+    sendMessagesWithDelay(phoneNumbers)
 
     console.log(green, 'All Numbers sent!', reset)
     console.log('erroToSend => ', erroToSend)

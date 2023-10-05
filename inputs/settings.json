@@ -1,4 +1,7 @@
 {
+    "send_bulk_messages": {
+        "delay_every_message": 10000
+    },
     "monitoring_groups": {
         "delay_msg": 120000,
         "names": [
